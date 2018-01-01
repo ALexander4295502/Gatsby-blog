@@ -5,7 +5,7 @@ exports.createPages = ({ boundActionCreators, graphql }) => {
   const blogPostTemplate = path.resolve(`src/templates/blog-post.js`);
 
   return graphql(`{
-    allMarkdownRemark {
+    allMarkdownRemark(sort:{fields:[frontmatter__date], order: ASC}) {
         edges {
             node {
                 html
@@ -30,7 +30,11 @@ exports.createPages = ({ boundActionCreators, graphql }) => {
     posts.forEach(({node}, index) => {
       createPage({
         path: node.frontmatter.path,
-        component: blogPostTemplate
+        component: blogPostTemplate,
+        context: {
+          prev: index === 0 ? null : posts[index - 1].node,
+          next: index === (posts.length - 1) ? null : posts[index+1].node
+        }
       })
     })
   })
