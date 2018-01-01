@@ -1,8 +1,8 @@
 const path = require('path');
 
 const createTagPages = (createPage, posts) => {
-  const tagPageTemplate = path.resolve(`src/templates/tag.js`);
-  const allTagsTemplate = path.resolve(`src/template/all-tags.js`)
+  const tagPageTemplate = path.resolve(`src/templates/tags.js`);
+  const allTagsTemplate = path.resolve(`src/templates/all-tags.js`)
   const postsByTags = {}
 
   posts.forEach(({node}) => {
@@ -25,7 +25,7 @@ const createTagPages = (createPage, posts) => {
     context: {
       tags: tags.sort()
     }
-  })
+  });
 
   tags.forEach(tagName => {
     const posts = postsByTags[tagName]
@@ -41,31 +41,32 @@ const createTagPages = (createPage, posts) => {
 }
 
 exports.createPages = ({ boundActionCreators, graphql }) => {
-  const { createPage } = boundActionCreators;
-  const blogPostTemplate = path.resolve(`src/templates/blog-post.js`);
+  const { createPage } = boundActionCreators
+  const blogPostTemplate = path.resolve(`src/templates/blog-post.js`)
+
 
   return graphql(`{
-    allMarkdownRemark(sort:{fields:[frontmatter__date], order: ASC}) {
-        edges {
-            node {
-                html
-                id
-                frontmatter {
-                    date
-                    path
-                    title
-                    excerpt
-                    tags
-                }
-            }
+    allMarkdownRemark {
+      edges {
+        node {
+          html
+          id
+          frontmatter {
+            date
+            path
+            title
+            excerpt
+            tags
+          }
         }
+      }
     }
   }`).then(result => {
-    if(result.errors) {
+    if (result.errors) {
       return Promise.reject(result.errors)
     }
 
-    const posts = result.data.allMarkdownRemark.edges;
+    const posts = result.data.allMarkdownRemark.edges
 
     createTagPages(createPage, posts)
 
@@ -75,7 +76,7 @@ exports.createPages = ({ boundActionCreators, graphql }) => {
         component: blogPostTemplate,
         context: {
           prev: index === 0 ? null : posts[index - 1].node,
-          next: index === (posts.length - 1) ? null : posts[index+1].node
+          next: index === (posts.length - 1) ? null : posts[index + 1].node
         }
       })
     })
